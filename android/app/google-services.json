@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "488236092619",
+    "project_id": "zamalek-e5587",
+    "storage_bucket": "zamalek-e5587.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:488236092619:android:0cdbee81b5e4331c2f9f4e",
+        "android_client_info": {
+          "package_name": "com.example.zoom_clone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7QCAOLsBimmCsQpGu8cyLU7IGkOT0RE8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
