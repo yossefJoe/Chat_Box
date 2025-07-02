@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:zoom_clone/core/resources/color_manager.dart';
 import 'package:zoom_clone/features/Home/home_screen.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class NavBarView extends StatefulWidget {
   const NavBarView({Key? key}) : super(key: key);
@@ -36,23 +38,23 @@ class _NavBarViewState extends State<NavBarView> {
         currentIndex: _currentIndex,
         onTap: _onTap,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).primaryColor,
+        selectedItemColor: ColorManager.primaryColor,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(FontAwesomeIcons.message),
+            label: 'Message',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.call),
+            icon: Icon(FontAwesomeIcons.phone),
             label: 'Calls',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.contacts),
+            icon: Icon(FontAwesomeIcons.user),
             label: 'Contacts',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(FontAwesomeIcons.cog),
             label: 'Settings',
           ),
         ],

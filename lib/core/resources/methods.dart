@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:zoom_clone/core/resources/firebase_methods.dart';
 import 'package:zoom_clone/core/resources/navigation.dart';
@@ -6,7 +7,6 @@ import 'package:zoom_clone/core/resources/snackbar_helper.dart';
 
 class Methods {
   Methods._();
-
 
   static void handleGoogleSignIn(BuildContext context) async {
     try {
@@ -46,4 +46,25 @@ class Methods {
     }
   }
 
+  void signOutBasedOnProvider() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    final List<UserInfo> providers = user.providerData;
+
+    final hasGoogle = providers.any((p) => p.providerId == 'google.com');
+
+    try {
+      if (hasGoogle) {
+        // Google sign out
+        await FirebaseHelper.signOutGoogle();
+      }
+
+      // Sign out from Firebase regardless of provider
+      FirebaseHelper.signOut();
+    } catch (e) {
+      print("Sign out error: $e");
+    }
   }
+}
