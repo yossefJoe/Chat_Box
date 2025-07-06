@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:zoom_clone/core/resources/styles_manager.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+class ChatRoomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
+  final Widget? titleChild;
   final bool centerTitle;
   final Color? backgroundColor;
   final double elevation;
@@ -10,9 +10,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? titleColor;
   final bool automaticallyImplyLeading;
 
-  const CustomAppBar({
+  const ChatRoomAppbar({
     Key? key,
     this.title,
+    this.titleChild,
     this.centerTitle = true,
     this.backgroundColor,
     this.elevation = 0.0,
@@ -24,24 +25,27 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: automaticallyImplyLeading
+      leading: automaticallyImplyLeading == true
           ? IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(
+                Icons.arrow_back,
+                size: 20,
+              ),
               onPressed: () => Navigator.of(context).pop(),
             )
           : null,
-      title: title != null
-          ? Text(
-              title!,
-              style:
-                  AppStyles.s20Bold.copyWith(color: titleColor ?? Colors.black),
-            )
-          : null,
+      title: titleChild ??
+          (title != null
+              ? Text(
+                  title!,
+                  style: TextStyle(color: titleColor ?? Colors.black),
+                )
+              : null),
       centerTitle: centerTitle,
       backgroundColor: backgroundColor ?? Colors.transparent,
       elevation: elevation,
       actions: actions,
-      iconTheme: const IconThemeData(color: Colors.black),
+      iconTheme: IconThemeData(color: titleColor ?? Colors.black),
     );
   }
 

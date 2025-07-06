@@ -12,6 +12,7 @@ class AppThemes {
       backgroundColor: Colors.blue,
       foregroundColor: Colors.white, // title & icons color
       elevation: 2,
+      titleTextStyle: TextStyle(color: Colors.black),
     ),
     textTheme: const TextTheme(
       bodyLarge: TextStyle(color: Colors.black),   // default text color for bodyLarge (usually default Text)

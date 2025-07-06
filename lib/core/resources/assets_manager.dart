@@ -9,5 +9,10 @@ class AssetsManager {
 
   //icons
   static const String googleIcon = '${iconsPath}Google.png';
-  //assets/logos/splashLogo.png
+
+  //images
+  static const String homepic = '${imagePath}homepic.png';
+  static const String status1 = '${imagePath}status1.png';
+  static const String chat1 = '${imagePath}chat1.png';
+  static const String media1 = '${imagePath}media1.png';
 }
