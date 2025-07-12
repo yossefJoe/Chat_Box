@@ -12,8 +12,11 @@ class UserImage extends StatelessWidget {
       width: size ?? 50.w,
       height: size ?? 50.h,
       decoration: BoxDecoration(
+        shape: BoxShape.circle,
         image: DecorationImage(
-          image: AssetImage(imageUrl),
+          image: imageUrl.contains("https")
+              ? NetworkImage(imageUrl)
+              : AssetImage(imageUrl),
           fit: BoxFit.fill,
           filterQuality: FilterQuality.high,
         ),

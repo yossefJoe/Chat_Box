@@ -4,7 +4,7 @@ import 'package:zoom_clone/features/Chat/presentation/views/pages/my_chats_scree
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zoom_clone/features/Contacts/pages/my_contacts_screen.dart';
 import 'package:zoom_clone/features/calls/calls_screen.dart';
-import 'package:zoom_clone/features/settings/settings_page.dart';
+import 'package:zoom_clone/features/settings/presentation/views/pages/settings_page.dart';
 
 class NavBarView extends StatefulWidget {
   const NavBarView({Key? key}) : super(key: key);

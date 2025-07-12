@@ -4,7 +4,7 @@ import 'package:zoom_clone/core/resources/color_manager.dart';
 import 'package:zoom_clone/core/resources/firebase_methods.dart';
 import 'package:zoom_clone/core/widgets/custom_appbar.dart';
 import 'package:zoom_clone/core/widgets/primary_button.dart';
-import 'package:zoom_clone/features/settings/settings_body.dart';
+import 'package:zoom_clone/features/settings/presentation/views/widgets/settings_body.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -16,11 +16,12 @@ class SettingsPage extends StatelessWidget {
       appBar: const CustomAppBar(
         titleColor: Colors.white,
         title: "Settings",
+        
       ),
       body: Column(
         children: [
           Padding(
-              padding:const EdgeInsets.only(top: 20.0),
+              padding: const EdgeInsets.only(top: 20.0),
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20.w),
@@ -28,8 +29,8 @@ class SettingsPage extends StatelessWidget {
                 ),
                 child: Container(
                   color: ColorManager.whiteColor,
-                  child:const Padding(
-                      padding: const EdgeInsets.all(20.0),
+                  child: const Padding(
+                      padding:  EdgeInsets.all(20.0),
                       child: SettingsBody()),
                 ),
               )),

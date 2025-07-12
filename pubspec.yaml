@@ -36,12 +36,15 @@ dependencies:
   flutter_bloc: ^8.1.3
   firebase_core:
   firebase_auth:
+  dartz:
+  equatable: ^2.0.7
   cloud_firestore:
   google_sign_in:
   agora_rtc_engine:
   permission_handler:
   go_router:
   flutter_screenutil:
+  get_it:
   http:
   fluttertoast:
   font_awesome_flutter:
