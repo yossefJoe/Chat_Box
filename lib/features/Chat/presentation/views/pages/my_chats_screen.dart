@@ -30,7 +30,7 @@ class MyChatsScreen extends StatelessWidget {
                 child:  CustomBody(
                   itemCount: 10,
                   itemBuilder: (context, index) {
-                    return ChatRoomWidget();
+                    return const ChatRoomWidget();
                   },
                 ),
               ),

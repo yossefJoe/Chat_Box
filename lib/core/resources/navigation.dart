@@ -30,4 +30,8 @@ class NavigationHelper {
   static void push(BuildContext context, String routeName) {
     context.push(routeName);
   }
+   static void pushToPageWithParams(
+      BuildContext context, String page, Map<String, dynamic> params) {
+    context.push(page, extra: params);
+  }
 }

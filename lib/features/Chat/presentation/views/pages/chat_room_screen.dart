@@ -1,16 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zoom_clone/core/resources/assets_manager.dart';
 import 'package:zoom_clone/core/resources/color_manager.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
-import 'package:zoom_clone/core/widgets/custom_appbar.dart';
+import 'package:zoom_clone/core/widgets/empty_pic_widget.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/chat_message_bar.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/chat_room_appbar.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/user_image.dart';
+import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 
 class ChatRoomScreen extends StatefulWidget {
-  const ChatRoomScreen({super.key});
+  const ChatRoomScreen({super.key, required this.userData});
+  final UserDataModel userData;
 
   @override
   State<ChatRoomScreen> createState() => _ChatRoomScreenState();
@@ -51,7 +54,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         automaticallyImplyLeading: false,
         titleChild: Row(
           children: [
-            const UserImage(imageUrl: AssetsManager.status1),
+            widget.userData.photoUrl == "none"
+                ? EmptyPicWidget(
+                    userFirstLetter:
+                        widget.userData.name?.substring(0, 1).toUpperCase() ??
+                            "")
+                : UserImage(imageUrl: widget.userData.photoUrl ?? ""),
             SizedBox(width: 10.w),
             nameandActive(),
             const Spacer(),
@@ -130,16 +138,17 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   }
 
   Widget nameandActive() {
-    return const Column(
+    String? active = widget.userData.active == true ? "Active Now" : "Inactive";
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Alex Linderson",
+          widget.userData.name ?? "",
           style: AppStyles.s18Bold,
         ),
         Text(
-          "Active Now",
-          style: TextStyle(fontSize: 14),
+          active,
+          style: AppStyles.s14Regular,
         ),
       ],
     );

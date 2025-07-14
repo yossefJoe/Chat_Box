@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:zoom_clone/features/Auth/presentation/views/pages/login_screen.dart';
 import 'package:zoom_clone/features/Auth/presentation/views/pages/signup_screen.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/pages/chat_room_screen.dart';
-import 'package:zoom_clone/features/Contacts/pages/contact_info_screen.dart';
+import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
+import 'package:zoom_clone/features/Contacts/presentation/views/pages/contact_info_screen.dart';
 import 'package:zoom_clone/welcome_screen.dart';
 import 'package:zoom_clone/nav_bar_view.dart';
 
@@ -43,11 +44,19 @@ class AppRoutes {
       ),
       GoRoute(
         path: AppRoutes.chatRoomScreen,
-        builder: (context, state) => const ChatRoomScreen(),
+        builder: (context, state) {
+          final data = state.extra as Map<String, dynamic>;
+          final userData = data["userData"] as UserDataModel;
+          return ChatRoomScreen(userData: userData);
+        },
       ),
       GoRoute(
         path: AppRoutes.contactInfoScreen,
-        builder: (context, state) => const ContactInfoScreen(),
+        builder: (context, state) {
+          final data = state.extra as Map<String, dynamic>;
+          final userData = data["userData"] as UserDataModel;
+          return ContactInfoScreen(userData: userData);
+        },
       ),
     ],
   );

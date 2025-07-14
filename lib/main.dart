@@ -8,6 +8,7 @@ import 'package:zoom_clone/core/resources/bloc_observer.dart';
 import 'package:zoom_clone/core/resources/routes_manager.dart';
 import 'package:zoom_clone/features/Auth/presentation/controller/login_cubit/login_cubit.dart';
 import 'package:zoom_clone/core/resources/service_locator.dart' as sl;
+import 'package:zoom_clone/features/Contacts/presentation/cubits/get_contacts_cubit/get_contacts_cubit.dart';
 import 'package:zoom_clone/features/settings/presentation/cubit/sign_out_cubit/sign_out_cubit.dart';
 import 'package:zoom_clone/features/settings/presentation/cubit/user_data_cubit/user_data_cubit.dart';
 
@@ -40,6 +41,9 @@ class MyApp extends StatelessWidget {
             ),
             BlocProvider<SignOutCubit>(
               create: (context) => sl.getIt<SignOutCubit>(),
+            ),
+            BlocProvider<UserContactsCubit>(
+              create: (context) => sl.getIt<UserContactsCubit>()..getUserContacts(),
             ),
           ],
           child: MaterialApp.router(

@@ -63,6 +63,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 'email': emailController.text,
                 'photoUrl': "", // optional
                 'uid': uid,
+                "bio": "",
+                "active": true
               },
             );
           }

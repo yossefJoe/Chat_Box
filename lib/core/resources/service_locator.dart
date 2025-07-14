@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:zoom_clone/features/Auth/data/repos/auth_repo.dart';
 import 'package:zoom_clone/features/Auth/data/repos/auth_repo_impl.dart';
 import 'package:zoom_clone/features/Auth/presentation/controller/login_cubit/login_cubit.dart';
+import 'package:zoom_clone/features/Contacts/data/repos/contacts_repo.dart';
+import 'package:zoom_clone/features/Contacts/data/repos/contacts_repo_impl.dart';
+import 'package:zoom_clone/features/Contacts/presentation/cubits/get_contacts_cubit/get_contacts_cubit.dart';
 import 'package:zoom_clone/features/settings/data/repos/settings_repo.dart';
 import 'package:zoom_clone/features/settings/data/repos/settings_repo_impl.dart';
 import 'package:zoom_clone/features/settings/presentation/cubit/sign_out_cubit/sign_out_cubit.dart';
@@ -25,6 +28,11 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<SettingsRepoImpl>(() => SettingsRepoImpl());
   getIt.registerLazySingleton<SettingsRepo>(() => SettingsRepoImpl());
 
+  // contacts
+
+  getIt.registerLazySingleton<ContactsRepoImpl>(() => ContactsRepoImpl());
+    getIt.registerLazySingleton<ContactsRepo>(() => ContactsRepoImpl());
+
 //Cubits
 
 //Auth
@@ -33,5 +41,8 @@ Future<void> initServiceLocator() async {
         //Settings
         getIt.registerSingleton(UserDataCubit(getIt.get<SettingsRepoImpl>()));
         getIt.registerSingleton(SignOutCubit(getIt.get<SettingsRepoImpl>()));
+
+        // Contacts
+        getIt.registerSingleton(UserContactsCubit(getIt.get<ContactsRepoImpl>()));
 
 }

@@ -5,6 +5,7 @@ import 'package:zoom_clone/core/resources/navigation.dart';
 import 'package:zoom_clone/core/resources/routes_manager.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/user_image.dart';
+import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 
 class ChatRoomWidget extends StatelessWidget {
   const ChatRoomWidget({super.key});
@@ -13,7 +14,7 @@ class ChatRoomWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        NavigationHelper.push(context, AppRoutes.chatRoomScreen);
+        NavigationHelper.pushToPageWithParams(context, AppRoutes.chatRoomScreen, {"userData" : UserDataModel()});
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

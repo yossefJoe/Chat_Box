@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zoom_clone/core/resources/assets_manager.dart';
 import 'package:zoom_clone/core/resources/color_manager.dart';
+import 'package:zoom_clone/core/resources/navigation.dart';
+import 'package:zoom_clone/core/resources/routes_manager.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
-import 'package:zoom_clone/core/widgets/custom_body.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/user_image.dart';
-import 'package:zoom_clone/features/Contacts/widgets/contact_info_body.dart';
-import 'package:zoom_clone/features/calls/recent_calls_widget.dart';
+import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
+import 'package:zoom_clone/features/Contacts/presentation/views/widgets/contact_info_body.dart';
 
 class ContactInfoScreen extends StatelessWidget {
-  const ContactInfoScreen({super.key});
-
+  const ContactInfoScreen({super.key, required this.userData});
+  final UserDataModel userData;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,11 +29,11 @@ class ContactInfoScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "Jhon abraham",
+                      userData.name??"",
                       style: AppStyles.s18Medium.copyWith(color: Colors.white),
                     ),
                     Text(
-                      "@Jhon abraham",
+                      "@${userData.email?.split('@')[0]}",
                       style: AppStyles.s12Medium
                           .copyWith(color: ColorManager.greyColor),
                     ),
@@ -40,11 +41,13 @@ class ContactInfoScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        buildIcon(Icons.chat,(){}),
-                        buildIcon(Icons.videocam,(){}),
-                        buildIcon(Icons.phone,(){}),
-                        buildIcon(Icons.more_horiz,(){}),
-                   
+                        buildIcon(Icons.chat, () {
+                          NavigationHelper.pushToPageWithParams(
+                              context, AppRoutes.chatRoomScreen, {"userData" : userData});
+                        }),
+                        buildIcon(Icons.videocam, () {}),
+                        buildIcon(Icons.phone, () {}),
+                        buildIcon(Icons.more_horiz, () {}),
                       ],
                     ),
                     Padding(
@@ -80,7 +83,7 @@ class ContactInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget buildIcon(IconData icon,Function()? onTap) {
+  Widget buildIcon(IconData icon, Function()? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

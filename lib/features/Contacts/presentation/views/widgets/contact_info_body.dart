@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zoom_clone/core/resources/color_manager.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
-import 'package:zoom_clone/features/Contacts/widgets/media_shared_widget.dart';
+import 'package:zoom_clone/features/Contacts/presentation/views/widgets/media_shared_widget.dart';
 
 class ContactInfoBody extends StatelessWidget {
   const ContactInfoBody({super.key});
