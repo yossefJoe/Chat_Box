@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:zoom_clone/core/resources/color_manager.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
+import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 import 'package:zoom_clone/features/Contacts/presentation/views/widgets/media_shared_widget.dart';
 
 class ContactInfoBody extends StatelessWidget {
-  const ContactInfoBody({super.key});
-
+  const ContactInfoBody({super.key, required this.userData});
+  final UserDataModel userData;
   @override
   Widget build(BuildContext context) {
-    const textStyleLabel = TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 16,
-      color: Colors.black87,
-    );
-
-    const textStyleValue = TextStyle(
-      fontSize: 14,
-      color: Colors.black54,
-    );
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(10),
@@ -30,17 +20,18 @@ class ContactInfoBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const InfoTile(title: 'Display Name', value: 'Jhon Abraham'),
+          InfoTile(title: 'Display Name', value: userData.name ?? ''),
           const SizedBox(height: 15),
-          const InfoTile(
-              title: 'Email Address', value: 'jhonabraham20@gmail.com'),
+          InfoTile(title: 'Email Address', value: userData.email ?? ''),
           const SizedBox(height: 15),
-          const InfoTile(
+          InfoTile(
             title: 'Address',
-            value: '33 street west subidbazar, sylhet',
+            value: userData.address ?? 'No address added',
           ),
           const SizedBox(height: 15),
-          const InfoTile(title: 'Phone Number', value: '(320) 555-0104'),
+          InfoTile(
+              title: 'Phone Number',
+              value: userData.phoneNumber ?? 'No phone number added'),
           const SizedBox(height: 25),
           const MediaSharedWidget(),
         ],

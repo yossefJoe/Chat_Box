@@ -6,6 +6,8 @@ class UserDataModel {
   String? uid;
   String? bio;
   bool? active;
+  String? phoneNumber;
+  String? address;
 
   UserDataModel({
      this.name,
@@ -14,5 +16,7 @@ class UserDataModel {
      this.uid,
      this.bio,
      this.active,
+     this.phoneNumber,
+     this.address
   });
 }

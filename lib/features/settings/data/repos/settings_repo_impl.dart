@@ -17,6 +17,7 @@ class SettingsRepoImpl implements SettingsRepo {
       );
 
       if (user == null) {
+        print("uid: $uid");
         return Left(FirebaseFailure(
             message: 'User document does not exist.', code: 'not-found'));
       }

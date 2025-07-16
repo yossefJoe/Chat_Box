@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:zoom_clone/features/Chat/data/models/chat_message_model.dart';
+import 'package:zoom_clone/features/Chat/data/models/chat_room_model.dart';
 
 class FirebaseHelper {
   // Firestore instance
@@ -108,17 +110,20 @@ class FirebaseHelper {
   }
 
   /// 📥 Add document to collection (auto ID)
-  static Future<DocumentReference?> addDocument({
-    required String collectionPath,
-    required Map<String, dynamic> data,
-  }) async {
-    try {
-      return await _firestore.collection(collectionPath).add(data);
-    } catch (e) {
-      print("Add Document Error: $e");
-      return null;
-    }
+ static Future<void> addDocument({
+  required String collectionPath,
+  String? docId,
+  required Map<String, dynamic> data,
+}) async {
+  final collection = FirebaseFirestore.instance.collection(collectionPath);
+
+  if (docId != null) {
+    await collection.doc(docId).set(data);
+  } else {
+    await collection.add(data);
   }
+}
+
 
   /// 📤 Get all documents from a collection
   static Future<List<Map<String, dynamic>>> getCollectionData({
@@ -219,5 +224,36 @@ class FirebaseHelper {
       print("Fetch Except UID Error: $e");
       return [];
     }
+  }
+
+ static  Stream<List<ChatRoom>> getChatRoomsStream(String myUid) {
+    return FirebaseFirestore.instance
+        .collection('chats')
+        .doc(myUid)
+        .collection('chatrooms')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return ChatRoom.fromMap(doc.data());
+      }).toList();
+    });
+  }
+
+   static Stream<List<ChatMessage>> getMessagesStream(String myUid, String otherUid) {
+    return FirebaseFirestore.instance
+        .collection('chats')
+        .doc(myUid)
+        .collection('chatrooms')
+        .doc(otherUid)
+        .snapshots()
+        .map((snapshot) {
+      final data = snapshot.data();
+      if (data == null || data['messages'] == null) return [];
+
+      final List messagesData = data['messages'];
+      return messagesData
+          .map((msg) => ChatMessage.fromMap(Map<String, dynamic>.from(msg)))
+          .toList();
+    });
   }
 }

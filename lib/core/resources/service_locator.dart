@@ -3,6 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:zoom_clone/features/Auth/data/repos/auth_repo.dart';
 import 'package:zoom_clone/features/Auth/data/repos/auth_repo_impl.dart';
 import 'package:zoom_clone/features/Auth/presentation/controller/login_cubit/login_cubit.dart';
+import 'package:zoom_clone/features/Chat/data/repos/chat_repo.dart';
+import 'package:zoom_clone/features/Chat/data/repos/chat_repo_impl.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_messages_cubit/get_chat_messages_cubit.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_rooms_cubit/get_chat_rooms_cubit.dart';
 import 'package:zoom_clone/features/Contacts/data/repos/contacts_repo.dart';
 import 'package:zoom_clone/features/Contacts/data/repos/contacts_repo_impl.dart';
 import 'package:zoom_clone/features/Contacts/presentation/cubits/get_contacts_cubit/get_contacts_cubit.dart';
@@ -33,6 +37,10 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<ContactsRepoImpl>(() => ContactsRepoImpl());
     getIt.registerLazySingleton<ContactsRepo>(() => ContactsRepoImpl());
 
+  // chat 
+    getIt.registerLazySingleton<ChatRepoImpl>(() => ChatRepoImpl());
+      getIt.registerLazySingleton<ChatRepo>(() => ChatRepoImpl());
+
 //Cubits
 
 //Auth
@@ -44,5 +52,9 @@ Future<void> initServiceLocator() async {
 
         // Contacts
         getIt.registerSingleton(UserContactsCubit(getIt.get<ContactsRepoImpl>()));
+
+        // Chat
+        getIt.registerSingleton(GetChatRoomsCubit(getIt.get<ChatRepoImpl>()));
+        getIt.registerSingleton(GetChatMessagesCubit(getIt.get<ChatRepoImpl>()));
 
 }

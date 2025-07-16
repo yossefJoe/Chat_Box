@@ -85,8 +85,9 @@ class _MyContactsScreenState extends State<MyContactsScreen> {
                             userData: UserDataModel(
                               name: user['name'] ?? '',
                               email: user['email'] ?? '',
-                              photoUrl: user['photoURL'] ?? 'none',
+                              photoUrl: user['photoUrl'] ?? 'none',
                               uid: user['uid'] ?? '',
+                              bio: user['bio'],
                             ),
                             index: index,
                           );

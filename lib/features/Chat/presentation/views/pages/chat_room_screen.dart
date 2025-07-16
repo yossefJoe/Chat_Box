@@ -1,13 +1,24 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:zoom_clone/core/resources/assets_manager.dart';
-import 'package:zoom_clone/core/resources/color_manager.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:zoom_clone/core/resources/methods.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
 import 'package:zoom_clone/core/widgets/empty_pic_widget.dart';
+import 'package:zoom_clone/features/Chat/data/models/chat_message_model.dart';
+import 'package:zoom_clone/features/Chat/data/models/chat_room_model.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_messages_cubit/get_chat_messages_cubit.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_messages_cubit/get_chat_messages_state.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/chat_message_bar.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/chat_room_appbar.dart';
+import 'package:zoom_clone/features/Chat/presentation/views/widgets/messages/message_widget.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/user_image.dart';
 import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 
@@ -22,29 +33,150 @@ class ChatRoomScreen extends StatefulWidget {
 class _ChatRoomScreenState extends State<ChatRoomScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FlutterSoundRecorder _audioRecorder = FlutterSoundRecorder();
+  bool isRecording = false;
+  bool isRecorderInitialized = false;
 
-  final List<String> _dummyMessages = [
-    "Hello!",
-    "Hi there! How are you?",
-    "I'm good, thanks! What about you?",
-    "All good. Working on the Flutter project.",
-    "Sounds awesome!",
-    "Hello!",
-    "Hi there! How are you?",
-    "I'm good, thanks! What about you?",
-    "All good. Working on the Flutter project.",
-    "Sounds awesome!",
-    "Hello!",
-    "Hi there! How are you?",
-    "I'm good, thanks! What about you?",
-    "All good. Working on the Flutter project.",
-    "Sounds awesome!",
-  ];
+  Future<void> initRecorder() async {
+    await _audioRecorder.openRecorder();
+    isRecorderInitialized = true;
+  }
+
+  Future<bool> requestMicPermission() async {
+    final status = await Permission.microphone.request();
+    return status.isGranted;
+  }
+
+  Future<void> startVoiceRecording() async {
+    bool hasPermission = await requestMicPermission();
+    if (!hasPermission) {
+      print("Microphone permission denied");
+      return;
+    }
+
+    await _audioRecorder.openRecorder();
+
+    final tempDir = await getTemporaryDirectory();
+    final path =
+        '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.aac';
+
+    await _audioRecorder.startRecorder(
+      toFile: path,
+      codec: Codec.aacADTS,
+    );
+
+    setState(() {
+      isRecording = true;
+    });
+  }
+
+  Future<void> stopAndSendVoice() async {
+    try {
+      final path = await _audioRecorder.stopRecorder();
+
+      setState(() {
+        isRecording = false;
+      });
+
+      if (path == null || path.isEmpty) {
+        print("No recording was made.");
+        return;
+      }
+
+      final voiceFile = File(path);
+      final voiceUrl = await Methods.uploadVoiceToCloudinary(voiceFile);
+
+      if (voiceUrl != null) {
+        final myUid = FirebaseAuth.instance.currentUser!.uid;
+        final otherUid = widget.userData.uid ?? "";
+
+        ChatMessage message = ChatMessage(
+          message: '', // or you can omit this if nullable
+          voiceUrl: voiceUrl,
+          isFromMe: true,
+          time: DateTime.now(),
+        );
+
+        await sendMessage(myUid, otherUid, message);
+      } else {
+        print("Failed to upload voice message.");
+      }
+    } catch (e) {
+      print("Error while stopping or sending voice: $e");
+      setState(() {
+        isRecording = false;
+      });
+    }
+  }
+
+  Future<void> createChatRoomIfNotExists(String myUid, String otherUid) async {
+    final chatRoomRef = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(myUid)
+        .collection('chatrooms')
+        .doc(otherUid);
+
+    final chatRoomSnapshot = await chatRoomRef.get();
+
+    if (!chatRoomSnapshot.exists) {
+      final chatRoom = ChatRoom(
+        imageUrl: widget.userData.photoUrl ?? "",
+        userName: widget.userData.name ?? "",
+        chatRoomId: chatRoomRef.id,
+        otherUserId: otherUid,
+        createdAt: DateTime.now(),
+      );
+
+      await chatRoomRef.set(chatRoom.toMap());
+    }
+  }
+
+  Future<void> sendMessage(
+      String myUid, String otherUid, ChatMessage message) async {
+    await createChatRoomIfNotExists(myUid, otherUid);
+    await createChatRoomIfNotExists(
+        otherUid, myUid); // Create for the other user too
+
+    final myChatRoomRef = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(myUid)
+        .collection('chatrooms')
+        .doc(otherUid);
+
+    final otherChatRoomRef = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(otherUid)
+        .collection('chatrooms')
+        .doc(myUid);
+
+    // Update sender's chatroom
+    await myChatRoomRef.update({
+      'messages': FieldValue.arrayUnion([message.toMap()])
+    });
+
+    // Update receiver's chatroom
+    await otherChatRoomRef.update({
+      'messages':
+          FieldValue.arrayUnion([message.copyWith(isFromMe: false).toMap()])
+    });
+    context.read<GetChatMessagesCubit>().addMessageLocally(message);
+    setState(() {});
+  }
+
   @override
   void dispose() {
+    _audioRecorder.closeRecorder();
     _scrollController.dispose();
     _messageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    context
+        .read<GetChatMessagesCubit>()
+        .fetchChatMessages(widget.userData.uid ?? "");
+    super.initState();
   }
 
   @override
@@ -65,71 +197,62 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             const Spacer(),
             IconButton(
                 onPressed: () {},
-                icon: const Icon(
-                  FontAwesomeIcons.phone,
-                  size: 20,
-                )),
+                icon: const Icon(FontAwesomeIcons.phone, size: 20)),
             IconButton(
                 onPressed: () {},
-                icon: const Icon(
-                  FontAwesomeIcons.video,
-                  size: 20,
-                ))
+                icon: const Icon(FontAwesomeIcons.video, size: 20)),
           ],
         ),
       ),
       body: Column(
         children: [
-          // Message list
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
-              itemCount: _dummyMessages.length,
-              itemBuilder: (context, index) {
-                bool isMe = index % 2 == 0;
-                return Align(
-                  alignment:
-                      isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 6.h),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? ColorManager.chatMeColor
-                          : ColorManager.greyColor,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Text(
-                      _dummyMessages[index],
-                      style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                    ),
-                  ),
+              child: BlocBuilder<GetChatMessagesCubit, GetChatMessagesState>(
+            builder: (context, state) {
+              if (state is GetChatMessagesSuccessState) {
+                final chatMessages = state.chatMessages;
+                return ListView.builder(
+                  controller: _scrollController,
+                  padding:
+                      EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
+                  itemCount: chatMessages.length,
+                  itemBuilder: (context, index) {
+                    final message = chatMessages[index];
+                    return MessageWidget(message: message);
+                  },
                 );
-              },
-            ),
-          ),
-
-          // Chat input field
-          ChatInputBar(
-            controller: _messageController,
-            onSend: () {
-              if (_messageController.text.trim().isNotEmpty) {
-                setState(() {
-                  _dummyMessages.add(_messageController.text.trim());
-                  _messageController.clear();
-                });
-
-                Future.delayed(Duration(milliseconds: 100), () {
-                  _scrollController
-                      .jumpTo(_scrollController.position.maxScrollExtent);
-                });
+              } else if (state is GetChatMessagesFailureState) {
+                return const Center(
+                    child: Text('Failed to load chat messages.'));
+              } else {
+                return const Center(child: Text("Loading messages"));
               }
             },
-            onRecord: () {
-              // TODO: Trigger voice recording logic
-              print("Record pressed");
+          )),
+          ChatInputBar(
+            controller: _messageController,
+            onSend: () async {
+              String myUid = FirebaseAuth.instance.currentUser!.uid;
+              String otherUid = widget.userData.uid ?? "";
+
+              if (_messageController.text.trim().isNotEmpty) {
+                ChatMessage message = ChatMessage(
+                  message: _messageController.text.trim(),
+                  isFromMe: true,
+                  time: DateTime.now(),
+                );
+                _messageController.clear();
+                await sendMessage(myUid, otherUid, message);
+
+                ;
+              }
+            },
+            onRecord: () async {
+              if (isRecording) {
+                await stopAndSendVoice();
+              } else {
+                await startVoiceRecording();
+              }
             },
           ),
         ],
@@ -142,14 +265,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.userData.name ?? "",
-          style: AppStyles.s18Bold,
-        ),
-        Text(
-          active,
-          style: AppStyles.s14Regular,
-        ),
+        Text(widget.userData.name?.split(' ')[0] ?? "",
+            style: AppStyles.s18Bold),
+        Text(active, style: AppStyles.s14Regular),
       ],
     );
   }

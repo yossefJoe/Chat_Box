@@ -64,7 +64,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 'photoUrl': "", // optional
                 'uid': uid,
                 "bio": "",
-                "active": true
+                "active": true,
+                'phoneNumber': '',
+                'address': ''
               },
             );
           }

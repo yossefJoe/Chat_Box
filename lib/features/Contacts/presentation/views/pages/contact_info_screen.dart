@@ -5,6 +5,7 @@ import 'package:zoom_clone/core/resources/color_manager.dart';
 import 'package:zoom_clone/core/resources/navigation.dart';
 import 'package:zoom_clone/core/resources/routes_manager.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
+import 'package:zoom_clone/core/widgets/empty_pic_widget.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/user_image.dart';
 import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 import 'package:zoom_clone/features/Contacts/presentation/views/widgets/contact_info_body.dart';
@@ -23,13 +24,19 @@ class ContactInfoScreen extends StatelessWidget {
               Center(
                 child: Column(
                   children: [
-                    UserImage(
-                      imageUrl: AssetsManager.status1,
-                      size: 80,
-                    ),
+                    const SizedBox(height: 10),
+                    userData.photoUrl == "none"
+                        ? EmptyPicWidget(
+                            userFirstLetter:
+                                userData.name?.substring(0, 1).toUpperCase() ??
+                                    "")
+                        : UserImage(
+                            imageUrl: userData.photoUrl ?? "",
+                            size: 80,
+                          ),
                     const SizedBox(height: 10),
                     Text(
-                      userData.name??"",
+                      userData.name ?? "",
                       style: AppStyles.s18Medium.copyWith(color: Colors.white),
                     ),
                     Text(
@@ -42,8 +49,8 @@ class ContactInfoScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         buildIcon(Icons.chat, () {
-                          NavigationHelper.pushToPageWithParams(
-                              context, AppRoutes.chatRoomScreen, {"userData" : userData});
+                          NavigationHelper.pushToPageWithParams(context,
+                              AppRoutes.chatRoomScreen, {"userData": userData});
                         }),
                         buildIcon(Icons.videocam, () {}),
                         buildIcon(Icons.phone, () {}),
@@ -51,7 +58,7 @@ class ContactInfoScreen extends StatelessWidget {
                       ],
                     ),
                     Padding(
-                        padding: EdgeInsets.only(top: 20.0),
+                        padding:const EdgeInsets.only(top: 20.0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20.w),
@@ -61,7 +68,9 @@ class ContactInfoScreen extends StatelessWidget {
                             color: ColorManager.whiteColor,
                             child: Padding(
                                 padding: const EdgeInsets.all(20.0),
-                                child: ContactInfoBody()),
+                                child: ContactInfoBody(
+                                  userData: userData,
+                                )),
                           ),
                         )),
                   ],

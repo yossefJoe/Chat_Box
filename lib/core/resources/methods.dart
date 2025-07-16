@@ -1,9 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:zoom_clone/core/resources/firebase_methods.dart';
 import 'package:zoom_clone/core/resources/navigation.dart';
 import 'package:zoom_clone/core/resources/snackbar_helper.dart';
+import 'package:http/http.dart' as http;
 
 class Methods {
   Methods._();
@@ -26,11 +32,16 @@ class Methods {
         if (!docSnapshot.exists) {
           await FirebaseHelper.addDocument(
             collectionPath: 'users',
+            docId: uid,
             data: {
               'name': userDate?.displayName,
               'email': userDate?.email,
               'photoUrl': userDate?.photoURL,
               'uid': uid,
+              'bio': '',
+              'active': true,
+              'phoneNumber': '',
+              'address': ''
             },
           );
         }
@@ -65,6 +76,38 @@ class Methods {
       FirebaseHelper.signOut();
     } catch (e) {
       print("Sign out error: $e");
+    }
+  }
+
+  static Future<String?> uploadVoiceToCloudinary(File voiceFile) async {
+    final cloudName = 'dnxkdxdvj';
+    final uploadPreset = 'Chat_box_voice_messages';
+
+    final uri =
+        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/auto/upload');
+
+    final mimeTypeData = lookupMimeType(voiceFile.path)?.split('/');
+    if (mimeTypeData == null) return null;
+
+    final request = http.MultipartRequest('POST', uri)
+      ..fields['upload_preset'] = uploadPreset
+      ..files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          voiceFile.path,
+          contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+        ),
+      );
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseData = await response.stream.bytesToString();
+      final decodedData = json.decode(responseData);
+      return decodedData['secure_url']; // This is the uploaded file's URL
+    } else {
+      print('Failed to upload to Cloudinary: ${response.statusCode}');
+      return null;
     }
   }
 }

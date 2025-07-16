@@ -23,7 +23,8 @@ class SettingsBody extends StatelessWidget {
         if (state is SignOutSuccessState) {
           ToastHelper.showSuccess("Logout Succefully");
           NavigationHelper.goToWelcomeScreen(context);
-        } if (state is SignOutFailureState) {
+        }
+        if (state is SignOutFailureState) {
           ToastHelper.showError("Logout Failed");
         }
       },
@@ -36,7 +37,7 @@ class SettingsBody extends StatelessWidget {
                 return Row(
                   children: [
                     UserImage(
-                      imageUrl: userData['photoURL'] ?? AssetsManager.homepic,
+                      imageUrl: userData['photoUrl'] ?? AssetsManager.homepic,
                       size: 60,
                     ),
                     const SizedBox(width: 20),
@@ -50,7 +51,7 @@ class SettingsBody extends StatelessWidget {
               return const SizedBox();
             },
           ),
-        const  SizedBox(height: 10),
+          const SizedBox(height: 10),
           featureListtile(
               "Account", Icons.person, "Manage your account details", () {}),
           featureListtile("Notifications", Icons.notifications,

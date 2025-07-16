@@ -21,20 +21,20 @@ class ContactDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        NavigationHelper.pushToPageWithParams(
-            context, AppRoutes.contactInfoScreen, {"userData": userData});
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (showHeader)
-            Text(
-              userData.name?.substring(0, 1).toUpperCase() ?? "",
-              style: AppStyles.s18Bold,
-            ),
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (showHeader)
+          Text(
+            userData.name?.substring(0, 1).toUpperCase() ?? "",
+            style: AppStyles.s18Bold,
+          ),
+        GestureDetector(
+          onTap: () {
+            NavigationHelper.pushToPageWithParams(
+                context, AppRoutes.contactInfoScreen, {"userData": userData});
+          },
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               userData.photoUrl == "none"
@@ -46,8 +46,8 @@ class ContactDetailsWidget extends StatelessWidget {
               titleAndLastMessage(),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -56,9 +56,11 @@ class ContactDetailsWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(userData.name ?? "", style: AppStyles.s16Medium),
-        const Text(
-          "Life is beautiful",
-          style: TextStyle(fontSize: 14),
+        Text(
+          userData.bio?.isEmpty ?? true
+              ? 'Hey there i am using this app'
+              : userData.bio ?? "",
+          style: AppStyles.s12Bold,
         ),
       ],
     );

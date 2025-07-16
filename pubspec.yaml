@@ -48,6 +48,12 @@ dependencies:
   http:
   fluttertoast:
   font_awesome_flutter:
+  intl:
+  just_audio:
+  path_provider: ^2.1.2
+  mime: ^1.0.4
+  http_parser:
+  flutter_sound:
 
 dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to
