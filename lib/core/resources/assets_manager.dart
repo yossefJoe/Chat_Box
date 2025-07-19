@@ -9,6 +9,8 @@ class AssetsManager {
 
   //icons
   static const String googleIcon = '${iconsPath}Google.png';
+  static const String imageLoading = '${iconsPath}loading.gif';
+  static const String imageLoading2 = '${iconsPath}loading2.gif';
 
   //images
   static const String homepic = '${imagePath}homepic.png';

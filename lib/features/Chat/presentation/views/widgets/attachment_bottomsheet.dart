@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:zoom_clone/core/resources/navigation.dart';
-import 'package:zoom_clone/core/resources/styles_manager.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/bottomsheet_children.dart';
+import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 
-void showAttachmentBottomSheet(BuildContext context) {
+Future<void> showAttachmentBottomSheet(
+    BuildContext context, UserDataModel userData) async {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true, // important for taller sheets
@@ -13,16 +13,24 @@ void showAttachmentBottomSheet(BuildContext context) {
     builder: (context) {
       return SizedBox(
         height:
-            MediaQuery.of(context).size.height * 0.7, // 70% of screen height
-        child: const AttachmentBottomsheet(),
+            MediaQuery.of(context).size.height * 0.8, // 70% of screen height
+        child: AttachmentBottomsheet(
+          userData: userData,
+        ),
       );
     },
   );
 }
 
-class AttachmentBottomsheet extends StatelessWidget {
-  const AttachmentBottomsheet({super.key});
+class AttachmentBottomsheet extends StatefulWidget {
+  const AttachmentBottomsheet({super.key, required this.userData});
+  final UserDataModel userData;
 
+  @override
+  State<AttachmentBottomsheet> createState() => _AttachmentBottomsheetState();
+}
+
+class _AttachmentBottomsheetState extends State<AttachmentBottomsheet> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -47,7 +55,9 @@ class AttachmentBottomsheet extends StatelessWidget {
                 ),
               ],
             ),
-            const BottomsheetChildren(),
+            BottomsheetChildren(
+              userData: widget.userData,
+            ),
             // You can add Spacer() here to push content up if needed
           ],
         ),

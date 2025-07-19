@@ -9,6 +9,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:zoom_clone/core/resources/firebase_methods.dart';
 import 'package:zoom_clone/core/resources/methods.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
 import 'package:zoom_clone/core/widgets/empty_pic_widget.dart';
@@ -16,6 +17,8 @@ import 'package:zoom_clone/features/Chat/data/models/chat_message_model.dart';
 import 'package:zoom_clone/features/Chat/data/models/chat_room_model.dart';
 import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_messages_cubit/get_chat_messages_cubit.dart';
 import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_messages_cubit/get_chat_messages_state.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/send_message_cubit/send_message_cubit.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/send_message_cubit/send_message_state.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/chat_message_bar.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/chat_room_appbar.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/messages/message_widget.dart';
@@ -40,6 +43,19 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   Future<void> initRecorder() async {
     await _audioRecorder.openRecorder();
     isRecorderInitialized = true;
+  }
+
+  final currentUser = FirebaseHelper.currentUser;
+  void scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Future<bool> requestMicPermission() async {
@@ -89,15 +105,27 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (voiceUrl != null) {
         final myUid = FirebaseAuth.instance.currentUser!.uid;
         final otherUid = widget.userData.uid ?? "";
-
         ChatMessage message = ChatMessage(
-          message: '', // or you can omit this if nullable
           voiceUrl: voiceUrl,
           isFromMe: true,
           time: DateTime.now(),
         );
-
-        await sendMessage(myUid, otherUid, message);
+        context.read<SendMessageCubit>().sendMessage(
+            otherUid,
+            message,
+            ChatRoom(
+              imageUrl: widget.userData.photoUrl ?? "",
+              userName: widget.userData.name ?? "",
+              chatRoomId: otherUid,
+              otherUserId: otherUid,
+              createdAt: DateTime.now(),
+            ),
+            ChatRoom(
+                chatRoomId: currentUser?.uid ?? "",
+                otherUserId: currentUser?.uid ?? "",
+                createdAt: DateTime.now(),
+                userName: currentUser?.displayName ?? "none",
+                imageUrl: currentUser?.photoURL ?? ""));
       } else {
         print("Failed to upload voice message.");
       }
@@ -107,60 +135,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         isRecording = false;
       });
     }
-  }
-
-  Future<void> createChatRoomIfNotExists(String myUid, String otherUid) async {
-    final chatRoomRef = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(myUid)
-        .collection('chatrooms')
-        .doc(otherUid);
-
-    final chatRoomSnapshot = await chatRoomRef.get();
-
-    if (!chatRoomSnapshot.exists) {
-      final chatRoom = ChatRoom(
-        imageUrl: widget.userData.photoUrl ?? "",
-        userName: widget.userData.name ?? "",
-        chatRoomId: chatRoomRef.id,
-        otherUserId: otherUid,
-        createdAt: DateTime.now(),
-      );
-
-      await chatRoomRef.set(chatRoom.toMap());
-    }
-  }
-
-  Future<void> sendMessage(
-      String myUid, String otherUid, ChatMessage message) async {
-    await createChatRoomIfNotExists(myUid, otherUid);
-    await createChatRoomIfNotExists(
-        otherUid, myUid); // Create for the other user too
-
-    final myChatRoomRef = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(myUid)
-        .collection('chatrooms')
-        .doc(otherUid);
-
-    final otherChatRoomRef = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(otherUid)
-        .collection('chatrooms')
-        .doc(myUid);
-
-    // Update sender's chatroom
-    await myChatRoomRef.update({
-      'messages': FieldValue.arrayUnion([message.toMap()])
-    });
-
-    // Update receiver's chatroom
-    await otherChatRoomRef.update({
-      'messages':
-          FieldValue.arrayUnion([message.copyWith(isFromMe: false).toMap()])
-    });
-    context.read<GetChatMessagesCubit>().addMessageLocally(message);
-    setState(() {});
   }
 
   @override
@@ -204,58 +178,70 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-              child: BlocBuilder<GetChatMessagesCubit, GetChatMessagesState>(
-            builder: (context, state) {
-              if (state is GetChatMessagesSuccessState) {
-                final chatMessages = state.chatMessages;
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding:
-                      EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
-                  itemCount: chatMessages.length,
-                  itemBuilder: (context, index) {
-                    final message = chatMessages[index];
-                    return MessageWidget(message: message);
-                  },
-                );
-              } else if (state is GetChatMessagesFailureState) {
-                return const Center(
-                    child: Text('Failed to load chat messages.'));
-              } else {
-                return const Center(child: Text("Loading messages"));
-              }
-            },
-          )),
-          ChatInputBar(
-            controller: _messageController,
-            onSend: () async {
-              String myUid = FirebaseAuth.instance.currentUser!.uid;
-              String otherUid = widget.userData.uid ?? "";
-
-              if (_messageController.text.trim().isNotEmpty) {
-                ChatMessage message = ChatMessage(
-                  message: _messageController.text.trim(),
-                  isFromMe: true,
-                  time: DateTime.now(),
-                );
-                _messageController.clear();
-                await sendMessage(myUid, otherUid, message);
-
-                ;
-              }
-            },
-            onRecord: () async {
-              if (isRecording) {
-                await stopAndSendVoice();
-              } else {
-                await startVoiceRecording();
-              }
-            },
-          ),
-        ],
+      body: BlocListener<SendMessageCubit, SendMessageState>(
+        listener: (context, state) {
+          if (state is SendMessageSuccessState) {
+            scrollToBottom();
+            setState(() {});
+          } else if (state is SendMessageFailureState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text("Failed to send message: ${state.message}")),
+            );
+          }
+        },
+        child: Column(
+          children: [
+            Expanded(
+                child: BlocBuilder<GetChatMessagesCubit, GetChatMessagesState>(
+              builder: (context, state) {
+                if (state is GetChatMessagesSuccessState) {
+                  final chatMessages =
+                      context.read<GetChatMessagesCubit>().messages;
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding:
+                        EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
+                    itemCount: chatMessages.length,
+                    itemBuilder: (context, index) {
+                      final message = chatMessages[index];
+                      return MessageWidget(message: message);
+                    },
+                  );
+                } else if (state is GetChatMessagesFailureState) {
+                  return const Center(
+                      child: Text('Failed to load chat messages.'));
+                } else {
+                  return const Center(child: Text("Loading messages"));
+                }
+              },
+            )),
+            ChatInputBar(
+              userData: widget.userData,
+              controller: _messageController,
+              onSend: () async {
+                String otherUid = widget.userData.uid ?? "";
+                if (_messageController.text.trim().isNotEmpty) {
+                  ChatMessage message = ChatMessage(
+                    message: _messageController.text.trim(),
+                    isFromMe: true,
+                    time: DateTime.now(),
+                  );
+                  _messageController.clear();
+                  Methods.basicSendMessage(context, otherUid, message,
+                      widget.userData, FirebaseHelper.currentUser);
+                }
+              },
+              onRecord: () async {
+                if (isRecording) {
+                  await stopAndSendVoice();
+                } else {
+                  await startVoiceRecording();
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

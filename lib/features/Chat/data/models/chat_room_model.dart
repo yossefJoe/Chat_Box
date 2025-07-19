@@ -13,6 +13,7 @@ class ChatRoom {
     required this.chatRoomId,
     required this.otherUserId,
     required this.createdAt,
+    
     this.imageUrl,required this.userName, this.active = false,
     this.messages = const [],
   });

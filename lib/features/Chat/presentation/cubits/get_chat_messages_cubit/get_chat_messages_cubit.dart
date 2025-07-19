@@ -11,7 +11,7 @@ class GetChatMessagesCubit extends Cubit<GetChatMessagesState> {
   
   final List<ChatMessage> _messages = [];
 
-  GetChatMessagesCubit(this.chatRepo,) : super(GetChatMessagesInitialState());
+  GetChatMessagesCubit(this.chatRepo) : super(GetChatMessagesInitialState());
 
   void fetchChatMessages(String otherUid) async {
     emit(GetChatMessagesLoadingState());
@@ -26,7 +26,8 @@ class GetChatMessagesCubit extends Cubit<GetChatMessagesState> {
           (chatMessages) {
             _messages
               ..clear()
-              ..addAll(chatMessages);
+              ..addAll(chatMessages)
+              ..sort((a, b) => a.time.compareTo(b.time));
 
             emit(GetChatMessagesSuccessState(
               chatMessages: List.from(_messages),
@@ -42,14 +43,14 @@ class GetChatMessagesCubit extends Cubit<GetChatMessagesState> {
     );
   }
 
-  /// ✅ Immediately add message locally and emit
-  void addMessageLocally(ChatMessage message) {
+  void addMessage(ChatMessage message) {
+    print("Adding new message: ${message.message ?? 'Voice'}");
     _messages.add(message);
-
-    emit(GetChatMessagesSuccessState(
-      chatMessages: List.from(_messages),
-    ));
+    _messages.sort((a, b) => a.time.compareTo(b.time));
+    emit(GetChatMessagesSuccessState(chatMessages: List.from(_messages)));
   }
+
+  List<ChatMessage> get messages => _messages;
 
   @override
   Future<void> close() {

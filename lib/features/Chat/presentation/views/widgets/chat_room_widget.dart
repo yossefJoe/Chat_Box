@@ -92,7 +92,7 @@ class ChatRoomWidget extends StatelessWidget {
   }
 
   Widget chooseLastMessageWidget() {
-    if (messages.last.isMedia ?? false) {
+    if (messages.last.imageUrl != null) {
       return Text("Media");
     } else if (messages.last.isLocation ?? false) {
       return Text("Location");

@@ -10,6 +10,8 @@ import 'package:zoom_clone/features/Auth/presentation/controller/login_cubit/log
 import 'package:zoom_clone/core/resources/service_locator.dart' as sl;
 import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_messages_cubit/get_chat_messages_cubit.dart';
 import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_rooms_cubit/get_chat_rooms_cubit.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/get_my_contacts_cubit/get_my_contacts_cubit.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/send_message_cubit/send_message_cubit.dart';
 import 'package:zoom_clone/features/Contacts/presentation/cubits/get_contacts_cubit/get_contacts_cubit.dart';
 import 'package:zoom_clone/features/settings/presentation/cubit/sign_out_cubit/sign_out_cubit.dart';
 import 'package:zoom_clone/features/settings/presentation/cubit/user_data_cubit/user_data_cubit.dart';
@@ -53,11 +55,17 @@ class MyApp extends StatelessWidget {
             BlocProvider<GetChatMessagesCubit>(
               create: (context) => sl.getIt<GetChatMessagesCubit>(),
             ),
+            BlocProvider<SendMessageCubit>(
+              create: (context) => sl.getIt<SendMessageCubit>(),
+            ),
+            BlocProvider<GetMyContactsCubit>(
+              create: (context) => sl.getIt<GetMyContactsCubit>()..getMyContacts(),
+            ),
           ],
           child: MaterialApp.router(
             routerConfig: AppRoutes.router,
             debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
+            title: 'Chat Box',
             theme: AppThemes.lightTheme,
           ),
         );

@@ -1,19 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zoom_clone/core/resources/color_manager.dart';
 import 'package:zoom_clone/features/Chat/presentation/views/widgets/attachment_bottomsheet.dart';
+import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 
 class ChatInputBar extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
   final VoidCallback onRecord;
+  final UserDataModel userData;
 
   const ChatInputBar({
     super.key,
     required this.controller,
     required this.onSend,
-    required this.onRecord,
+    required this.onRecord, required this.userData,
   });
 
   @override
@@ -54,8 +57,11 @@ class _ChatInputBarState extends State<ChatInputBar> {
         child: Row(
           children: [
             IconButton(
-              onPressed: () {
-                showAttachmentBottomSheet(context);
+              onPressed: () async{
+            await    showAttachmentBottomSheet(context,widget.userData );
+            setState(() {
+              
+            });
               },
               icon: Transform.rotate(
                 angle: 45 * 3.1416 / 180, // convert degrees to radians

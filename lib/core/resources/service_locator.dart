@@ -7,6 +7,8 @@ import 'package:zoom_clone/features/Chat/data/repos/chat_repo.dart';
 import 'package:zoom_clone/features/Chat/data/repos/chat_repo_impl.dart';
 import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_messages_cubit/get_chat_messages_cubit.dart';
 import 'package:zoom_clone/features/Chat/presentation/cubits/get_chat_rooms_cubit/get_chat_rooms_cubit.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/get_my_contacts_cubit/get_my_contacts_cubit.dart';
+import 'package:zoom_clone/features/Chat/presentation/cubits/send_message_cubit/send_message_cubit.dart';
 import 'package:zoom_clone/features/Contacts/data/repos/contacts_repo.dart';
 import 'package:zoom_clone/features/Contacts/data/repos/contacts_repo_impl.dart';
 import 'package:zoom_clone/features/Contacts/presentation/cubits/get_contacts_cubit/get_contacts_cubit.dart';
@@ -56,5 +58,7 @@ Future<void> initServiceLocator() async {
         // Chat
         getIt.registerSingleton(GetChatRoomsCubit(getIt.get<ChatRepoImpl>()));
         getIt.registerSingleton(GetChatMessagesCubit(getIt.get<ChatRepoImpl>()));
+        getIt.registerSingleton(SendMessageCubit(getIt.get<ChatRepoImpl>()));
+        getIt.registerSingleton(GetMyContactsCubit(getIt.get<ChatRepoImpl>()));
 
 }
