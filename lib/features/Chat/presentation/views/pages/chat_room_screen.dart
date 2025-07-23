@@ -26,7 +26,10 @@ import 'package:zoom_clone/features/Chat/presentation/views/widgets/user_image.d
 import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 
 class ChatRoomScreen extends StatefulWidget {
-  const ChatRoomScreen({super.key, required this.userData});
+  const ChatRoomScreen({
+    super.key,
+    required this.userData,
+  });
   final UserDataModel userData;
 
   @override
@@ -106,6 +109,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         final myUid = FirebaseAuth.instance.currentUser!.uid;
         final otherUid = widget.userData.uid ?? "";
         ChatMessage message = ChatMessage(
+          senderImageUrl: currentUser?.photoURL ?? "",
           voiceUrl: voiceUrl,
           isFromMe: true,
           time: DateTime.now(),
@@ -205,7 +209,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     itemCount: chatMessages.length,
                     itemBuilder: (context, index) {
                       final message = chatMessages[index];
-                      return MessageWidget(message: message);
+                      return MessageWidget(
+                        message: message,
+                      );
                     },
                   );
                 } else if (state is GetChatMessagesFailureState) {

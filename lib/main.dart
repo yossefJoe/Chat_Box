@@ -61,6 +61,7 @@ class MyApp extends StatelessWidget {
             BlocProvider<GetMyContactsCubit>(
               create: (context) => sl.getIt<GetMyContactsCubit>()..getMyContacts(),
             ),
+           
           ],
           child: MaterialApp.router(
             routerConfig: AppRoutes.router,

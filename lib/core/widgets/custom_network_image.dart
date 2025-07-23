@@ -24,9 +24,9 @@ class CustomNetworkImage extends StatelessWidget {
       height: height,
       fit: fit,
       placeholder: (context, url) => Center(
-        child: Image.asset(AssetsManager.imageLoading2),
+        child: Image.asset(AssetsManager.imageLoading2,),
       ),
-      errorWidget: (context, url, error) => Icon(Icons.error),
+      errorWidget: (context, url, error) =>const Icon(Icons.error),
     );
   }
 }

@@ -27,7 +27,7 @@ import 'package:contacts_service/contacts_service.dart';
 class Methods {
   Methods._();
 
-  static void handleGoogleSignIn(BuildContext context) async {
+  static Future<void> handleGoogleSignIn(BuildContext context) async {
     try {
       final user = await FirebaseHelper.signInWithGoogle();
       if (user != null) {

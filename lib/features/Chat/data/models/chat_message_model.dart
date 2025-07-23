@@ -9,8 +9,10 @@ class ChatMessage {
   final DateTime time;
   final bool isRead;
   final Map<String, dynamic>? contact; // 👈 NEW FIELD
+  final String? senderImageUrl;
 
   ChatMessage({
+      this.senderImageUrl,
     this.voiceUrl,
     this.message,
     required this.isFromMe,
@@ -24,6 +26,7 @@ class ChatMessage {
   });
 
   Map<String, dynamic> toMap() => {
+
         'voiceUrl': voiceUrl,
         'message': message,
         'isFromMe': isFromMe,
@@ -34,6 +37,7 @@ class ChatMessage {
         'isLocation': isLocation,
         'isRead': isRead,
         'contact': contact, // 👈 Save the contact map
+         'senderImageUrl': senderImageUrl,
       };
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
@@ -48,6 +52,7 @@ class ChatMessage {
       isLocation: map['isLocation'] ?? false,
       isRead: map['isRead'] ?? false,
       contact: map['contact'], // 👈 Load the contact map
+       senderImageUrl: map['senderImageUrl'],
     );
   }
 
@@ -62,6 +67,7 @@ class ChatMessage {
     bool? isLocation,
     bool? isRead,
     Map<String, dynamic>? contact, // 👈 Add to copyWith
+     String? senderImageUrl,
   }) {
     return ChatMessage(
       message: message ?? this.message,
@@ -74,6 +80,7 @@ class ChatMessage {
       isLocation: isLocation ?? this.isLocation,
       isRead: isRead ?? this.isRead,
       contact: contact ?? this.contact,
+       senderImageUrl: senderImageUrl ?? this.senderImageUrl,
     );
   }
 }

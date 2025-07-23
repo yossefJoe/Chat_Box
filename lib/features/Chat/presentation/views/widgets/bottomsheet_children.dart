@@ -5,7 +5,7 @@ import 'package:zoom_clone/core/resources/firebase_methods.dart';
 import 'package:zoom_clone/core/resources/methods.dart';
 import 'package:zoom_clone/core/resources/styles_manager.dart';
 import 'package:zoom_clone/features/Chat/data/models/chat_message_model.dart';
-import 'package:zoom_clone/features/Chat/presentation/views/widgets/user_device_contacts.dart';
+import 'package:zoom_clone/features/Chat/presentation/views/widgets/device_contacts/user_device_contacts.dart';
 import 'package:zoom_clone/features/Contacts/data/models/user_data_model.dart';
 
 class BottomsheetChildren extends StatefulWidget {

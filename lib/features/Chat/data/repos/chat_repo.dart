@@ -10,5 +10,5 @@ abstract class ChatRepo {
   Future<Either<Exception, List<Contact>>> getMyContacts();
   Future<Either<FirebaseFailure, void>> sendMessage(  String otherUid, ChatMessage message, ChatRoom myChatRoom, ChatRoom otherUserChatRoom);
   Future<Either<FirebaseFailure, void>> createChatRoomIfNotExists(String myUid, String otherUid,ChatRoom chatRoom);
-  
+
 }

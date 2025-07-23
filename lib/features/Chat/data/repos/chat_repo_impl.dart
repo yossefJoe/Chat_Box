@@ -59,7 +59,10 @@ class ChatRepoImpl extends ChatRepo {
 
   @override
   Future<Either<FirebaseFailure, void>> sendMessage(
-      String otherUid, ChatMessage message, ChatRoom myChatRoom, ChatRoom otherUserChatRoom) async {
+      String otherUid,
+      ChatMessage message,
+      ChatRoom myChatRoom,
+      ChatRoom otherUserChatRoom) async {
     String myUid = FirebaseHelper.currentUser!.uid;
     try {
       await createChatRoomIfNotExists(myUid, otherUid, myChatRoom);
@@ -96,12 +99,14 @@ class ChatRepoImpl extends ChatRepo {
   }
 
   @override
-  Future<Either<Exception, List<Contact>>> getMyContacts()async {
+  Future<Either<Exception, List<Contact>>> getMyContacts() async {
     try {
       final contacts = await Methods.getContacts();
-       return Right(contacts);
+      return Right(contacts);
     } catch (e) {
-       return Left(e is Exception ? e : Exception(e.toString()));
+      return Left(e is Exception ? e : Exception(e.toString()));
     }
   }
+
+ 
 }
